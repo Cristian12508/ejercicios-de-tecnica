@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Caso 8 - Turnos Bancarios</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        button, input {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #mensaje {
+            background-color: #fff3cd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #atencion {
+            background-color: #e8f5e9;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #estadisticas {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Banco Finanzas Seguras - Turnos</h2>
+
+    <label>Nombre del cliente:</label><br>
+    <input type="text" id="nombre" placeholder="Ingrese el nombre"><br>
+
+    <button onclick="asignarTurno()">Asignar turno</button>
+    <button onclick="atenderSiguiente()">Atender siguiente</button>
+    <button onclick="verEstadisticas()">Ver estadísticas del día</button>
+
+    <div id="mensaje">Sistema listo.</div>
+
+    <div id="atencion">Nadie en atención.</div>
+
+    <h3>Clientes en espera</h3>
+
+    <ul id="lista"></ul>
+
+    <div id="estadisticas"></div>
+
+    <script>
+
+        // Vectores paralelos
+        let turnos = [];
+        let numeros = [];
+
+        // Contador de turnos
+        let totalAsignados = 0;
+
+        // Cliente que está siendo atendido
+        let enAtencion = "";
+
+        // Formatear número de turno
+        function formatearTurno(n) {
+            return "T-" + String(n).padStart(3, "0");
+        }
+
+        // Verificar nombres repetidos
+        function nombreRepetido(nombre) {
+
+            for (let i = 0; i < turnos.length; i++) {
+
+                if (turnos[i].toLowerCase() === nombre.toLowerCase()) {
+                    return true;
+                }
+            }
+
+            return enAtencion.toLowerCase() === nombre.toLowerCase();
+        }
+
+        // Asignar turno
+        function asignarTurno() {
+
+            const nombre = document.getElementById("nombre").value.trim();
+
+            const msg = document.getElementById("mensaje");
+
+            // Validar nombre
+            if (nombre === "") {
+                msg.textContent = "Ingrese el nombre del cliente.";
+                return;
+            }
+
+            // Evitar turnos duplicados
+            if (nombreRepetido(nombre)) {
+                msg.textContent = "El cliente " + nombre + " ya tiene un turno.";
+                return;
+            }
+
+            totalAsignados++;
+
+            turnos.push(nombre);
+
+            numeros.push(formatearTurno(totalAsignados));
+
+            msg.textContent = "Turno " + formatearTurno(totalAsignados) +
+                " asignado a " + nombre + ".";
+
+            document.getElementById("nombre").value = "";
+
+            mostrarLista();
+        }
+
+        // Atender siguiente cliente
+        function atenderSiguiente() {
+
+            const msg = document.getElementById("mensaje");
+
+            if (turnos.length === 0) {
+                msg.textContent = "No hay clientes en espera.";
+                return;
+            }
+
+            // Eliminar el primer cliente de los vectores
+            const cliente = turnos.shift();
+
+            const numero = numeros.shift();
+
+            enAtencion = cliente;
+
+            document.getElementById("atencion").textContent =
+                "En atención: " + numero + " - " + cliente;
+
+            msg.textContent = "Atendiendo a " + cliente + ".";
+
+            mostrarLista();
+        }
+
+        // Mostrar clientes pendientes
+        function mostrarLista() {
+
+            const ul = document.getElementById("lista");
+
+            ul.innerHTML = "";
+
+            for (let i = 0; i < turnos.length; i++) {
+
+                const li = document.createElement("li");
+
+                li.textContent = numeros[i] + " - " + turnos[i];
+
+                ul.appendChild(li);
+            }
+        }
+
+        // Mostrar estadísticas
+        function verEstadisticas() {
+
+            const pendientes = turnos.length;
+
+            const atendidos = totalAsignados - pendientes;
+
+            if (totalAsignados === 0) {
+
+                document.getElementById("estadisticas").textContent =
+                    "Aún no se han asignado turnos.";
+
+                return;
+            }
+
+            const porcentaje = (atendidos / totalAsignados) * 100;
+
+            let texto =
+                "Turnos totales: " + totalAsignados + "\n" +
+                "Atendidos: " + atendidos + "\n" +
+                "Pendientes: " + pendientes + "\n" +
+                "Porcentaje atendido: " + porcentaje.toFixed(0) + "%";
+
+            // Verificar si terminó la jornada
+            if (pendientes === 0) {
+                texto += "\nJornada finalizada: no hay turnos pendientes.";
+            }
+
+            document.getElementById("estadisticas").textContent = texto;
+        }
+
+    </script>
+
+</body>
+</html>
