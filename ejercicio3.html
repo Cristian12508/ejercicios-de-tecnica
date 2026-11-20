@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Caso 3 - Turnos con Prioridad</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        button, select, input {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #atencion {
+            background-color: #e8f5e9;
+            padding: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Turnos con Prioridad - Clínica</h2>
+
+    <label>Paciente:</label><br>
+    <input type="text" id="nombre" placeholder="Ingrese el nombre"><br>
+
+    <label>Prioridad:</label><br>
+    <select id="prioridad">
+        <option value="Alta">Alta</option>
+        <option value="Media">Media</option>
+        <option value="Baja">Baja</option>
+    </select><br>
+
+    <button onclick="registrar()">Registrar paciente</button>
+    <button onclick="atender()">Atender siguiente</button>
+
+    <h3>Turnos pendientes</h3>
+    <ul id="lista"></ul>
+
+    <div id="atencion">
+        Nadie en atención.
+    </div>
+
+    <script>
+        // Vector de turnos
+        let turnos = [];
+
+        // Registrar paciente
+        function registrar() {
+            const nombre = document.getElementById("nombre").value.trim();
+            const prioridad = document.getElementById("prioridad").value;
+
+            if (nombre === "") {
+                alert("Ingrese el nombre del paciente.");
+                return;
+            }
+
+            turnos.push({
+                nombre: nombre,
+                prioridad: prioridad
+            });
+
+            document.getElementById("nombre").value = "";
+
+            mostrarLista();
+        }
+
+        // Buscar paciente según su prioridad
+        function buscarPrioridad(nivel) {
+            for (let i = 0; i < turnos.length; i++) {
+                if (turnos[i].prioridad === nivel) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        // Atender siguiente paciente
+        function atender() {
+            if (turnos.length === 0) {
+                alert("No hay pacientes pendientes.");
+                return;
+            }
+
+            let atendido;
+            const idxAlta = buscarPrioridad("Alta");
+            const idxMedia = buscarPrioridad("Media");
+
+            if (idxAlta !== -1) {
+                atendido = turnos.splice(idxAlta, 1)[0];
+            } else if (idxMedia !== -1) {
+                atendido = turnos.splice(idxMedia, 1)[0];
+            } else {
+                atendido = turnos.shift();
+            }
+
+            document.getElementById("atencion").textContent =
+                "En atención: " + atendido.nombre +
+                " (" + atendido.prioridad + ")";
+
+            mostrarLista();
+        }
+
+        // Mostrar turnos pendientes
+        function mostrarLista() {
+            const ul = document.getElementById("lista");
+            ul.innerHTML = "";
+
+            for (let i = 0; i < turnos.length; i++) {
+                const li = document.createElement("li");
+
+                li.textContent = turnos[i].nombre +
+                    " (" + turnos[i].prioridad + ")";
+
+                ul.appendChild(li);
+            }
+        }
+    </script>
+
+</body>
+</html>
