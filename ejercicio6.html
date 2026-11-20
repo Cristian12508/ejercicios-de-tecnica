@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Caso 6 - Calificaciones</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        button, input {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #resultado {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Registro de Calificaciones</h2>
+
+    <label>Estudiante:</label><br>
+    <input type="text" id="nombre" placeholder="Ingrese el nombre"><br>
+
+    <label>Nota (0-10):</label><br>
+    <input type="number" id="nota" min="0" max="10" step="0.1"><br>
+
+    <button onclick="agregarEstudiante()">Agregar estudiante</button>
+    <button onclick="calcularEstadisticas()">Calcular estadísticas</button>
+
+    <h3>Estudiantes registrados</h3>
+
+    <ul id="lista"></ul>
+
+    <div id="resultado">Aquí aparecerán las estadísticas.</div>
+
+    <script>
+
+        // Vectores paralelos
+        let nombres = [];
+        let notas = [];
+
+        // Agregar estudiante
+        function agregarEstudiante() {
+
+            const nombre = document.getElementById("nombre").value.trim();
+
+            const valorNota = document.getElementById("nota").value;
+
+            const nota = Number(valorNota);
+
+            // Validar nombre
+            if (nombre === "") {
+                alert("Ingrese el nombre del estudiante.");
+                return;
+            }
+
+            // Validar nota
+            if (valorNota === "" || !Number.isFinite(nota) || nota < 0 || nota > 10) {
+                alert("La nota debe estar entre 0 y 10.");
+                return;
+            }
+
+            // Guardar datos
+            nombres.push(nombre);
+            notas.push(nota);
+
+            document.getElementById("nombre").value = "";
+            document.getElementById("nota").value = "";
+
+            mostrarLista();
+        }
+
+        // Mostrar estudiantes registrados
+        function mostrarLista() {
+
+            const ul = document.getElementById("lista");
+
+            ul.innerHTML = "";
+
+            for (let i = 0; i < nombres.length; i++) {
+
+                const li = document.createElement("li");
+
+                li.textContent = nombres[i] + ": " + notas[i];
+
+                ul.appendChild(li);
+            }
+        }
+
+        // Calcular estadísticas
+        function calcularEstadisticas() {
+
+            if (notas.length === 0) {
+                alert("Primero registre al menos un estudiante.");
+                return;
+            }
+
+            // Variables acumuladoras
+            let suma = 0;
+            let posMax = 0;
+            let aprobados = 0;
+
+            // Recorrer las notas
+            for (let i = 0; i < notas.length; i++) {
+
+                suma += notas[i];
+
+                // Buscar nota más alta
+                if (notas[i] > notas[posMax]) {
+                    posMax = i;
+                }
+
+                // Contar aprobados
+                if (notas[i] >= 7) {
+                    aprobados++;
+                }
+            }
+
+            // Calcular resultados
+            const promedio = suma / notas.length;
+
+            const porcentaje = (aprobados / notas.length) * 100;
+
+            document.getElementById("resultado").textContent =
+
+                "Promedio = " + promedio.toFixed(2) + "\n" +
+
+                "Nota más alta = " + notas[posMax] +
+                " (" + nombres[posMax] + ")\n" +
+
+                "Aprobados = " + aprobados + "/" + notas.length +
+                " = " + porcentaje.toFixed(0) + "%";
+        }
+
+    </script>
+
+</body>
+</html>
+
+
