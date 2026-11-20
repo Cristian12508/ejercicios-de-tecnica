@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Caso 5 - Parqueadero</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        button, input {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        fieldset {
+            margin-bottom: 12px;
+        }
+
+        #mensaje {
+            background-color: #e3f2fd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #resumen {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Control de Parqueadero</h2>
+
+    <fieldset>
+        <legend>Ingreso</legend>
+
+        <label>Placa:</label><br>
+        <input type="text" id="placaIngreso" placeholder="ABC123"><br>
+
+        <label>Hora de entrada (0-23):</label><br>
+        <input type="number" id="horaEntrada" min="0" max="23"><br>
+
+        <button onclick="registrarIngreso()">Registrar ingreso</button>
+    </fieldset>
+
+    <fieldset>
+        <legend>Salida</legend>
+
+        <label>Placa:</label><br>
+        <input type="text" id="placaSalida" placeholder="ABC123"><br>
+
+        <label>Hora de salida (0-23):</label><br>
+        <input type="number" id="horaSalida" min="0" max="23"><br>
+
+        <button onclick="registrarSalida()">Registrar salida y cobrar</button>
+    </fieldset>
+
+    <div id="mensaje">Sistema listo.</div>
+
+    <h3>Autos estacionados</h3>
+    <ul id="lista"></ul>
+
+    <div id="resumen"></div>
+
+    <script>
+
+        // Vectores paralelos
+        let placas = [];
+        let horasEntrada = [];
+
+        // Tarifa por hora
+        const TARIFA = 0.75;
+
+        // Acumulador del dinero cobrado
+        let totalCobrado = 0;
+
+        // Registrar ingreso de vehículos
+        function registrarIngreso() {
+
+            const placa = document.getElementById("placaIngreso").value.trim().toUpperCase();
+
+            const hora = Number(document.getElementById("horaEntrada").value);
+
+            const msg = document.getElementById("mensaje");
+
+            // Validar datos
+            if (placa === "" || document.getElementById("horaEntrada").value === "" ||
+                !Number.isInteger(hora) || hora < 0 || hora > 23) {
+
+                msg.textContent = "Ingrese una placa y una hora válida entre 0 y 23.";
+                return;
+            }
+
+            // Verificar si el vehículo ya está registrado
+            if (placas.indexOf(placa) !== -1) {
+
+                msg.textContent = "La placa " + placa + " ya está en el parqueadero.";
+                return;
+            }
+
+            placas.push(placa);
+            horasEntrada.push(hora);
+
+            msg.textContent = "Ingresó " + placa + " a las " + hora + ":00.";
+
+            document.getElementById("placaIngreso").value = "";
+            document.getElementById("horaEntrada").value = "";
+
+            mostrarLista();
+        }
+
+        // Registrar salida de vehículos
+        function registrarSalida() {
+
+            const placa = document.getElementById("placaSalida").value.trim().toUpperCase();
+
+            const horaSalida = Number(document.getElementById("horaSalida").value);
+
+            const msg = document.getElementById("mensaje");
+
+            // Validar datos
+            if (placa === "" || document.getElementById("horaSalida").value === "" ||
+                !Number.isInteger(horaSalida) || horaSalida < 0 || horaSalida > 23) {
+
+                msg.textContent = "Ingrese una placa y una hora de salida válida entre 0 y 23.";
+                return;
+            }
+
+            // Buscar vehículo
+            const i = placas.indexOf(placa);
+
+            if (i === -1) {
+
+                msg.textContent = "La placa " + placa + " no se encuentra registrada.";
+                return;
+            }
+
+            // Verificar hora de salida
+            if (horaSalida < horasEntrada[i]) {
+
+                msg.textContent = "La hora de salida no puede ser menor a la hora de entrada (" + horasEntrada[i] + ").";
+                return;
+            }
+
+            // Calcular cobro
+            const horas = horaSalida - horasEntrada[i];
+
+            const cobro = horas * TARIFA;
+
+            totalCobrado += cobro;
+
+            // Eliminar vehículo de los vectores
+            placas.splice(i, 1);
+            horasEntrada.splice(i, 1);
+
+            msg.textContent = placa + ": " + horas + " horas x $" +
+                TARIFA.toFixed(2) + " = $" + cobro.toFixed(2);
+
+            document.getElementById("placaSalida").value = "";
+            document.getElementById("horaSalida").value = "";
+
+            mostrarLista();
+        }
+
+        // Mostrar vehículos estacionados
+        function mostrarLista() {
+
+            const ul = document.getElementById("lista");
+
+            ul.innerHTML = "";
+
+            for (let i = 0; i < placas.length; i++) {
+
+                const li = document.createElement("li");
+
+                li.textContent = placas[i] +
+                    " (entrada: " + horasEntrada[i] + ":00)";
+
+                ul.appendChild(li);
+            }
+
+            // Mostrar resumen
+            document.getElementById("resumen").textContent =
+                "Autos estacionados: " + placas.length +
+                "\nTotal cobrado hoy: $" + totalCobrado.toFixed(2);
+        }
+
+        // Mostrar información inicial
+        mostrarLista();
+
+    </script>
+
+</body>
+</html>
+
