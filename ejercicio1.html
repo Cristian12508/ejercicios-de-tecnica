@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Caso 1 - Factura de Ventas</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+    button, select, input { padding: 6px; margin: 4px 0; }
+    #resumen { background: #f4f4f4; padding: 10px; margin-top: 10px; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <h2>Simulador de Factura de Ventas</h2>
+
+  <!-- Entrada de datos -->
+  <label>Producto:</label>
+  <select id="selProducto"></select><br>
+  <label>Cantidad:</label>
+  <input type="number" id="cantidad" min="1" value="1"><br>
+  <button onclick="agregarProducto()">Agregar producto</button>
+  <button onclick="generarFactura()">Generar factura</button>
+  <button onclick="reiniciar()">Nueva compra</button>
+
+  <h3>Productos comprados</h3>
+  <ul id="lista"></ul>
+  <div id="resumen">Aún no hay productos.</div>
+
+  <script>
+    // Catálogo de la tienda: vectores paralelos de nombres y precios
+    const catalogoNombres = ["Leche", "Arroz", "Aceite", "Azúcar", "Fideos"];
+    const catalogoPrecios  = [1.00, 1.80, 3.50, 1.20, 0.90];
+
+    // Vectores donde se guarda la compra actual
+    let productos = [];
+    let cantidades = [];
+    let precios = [];
+
+    // Llena el selector con el catálogo usando un ciclo for
+    function cargarCatalogo() {
+      const sel = document.getElementById("selProducto");
+      for (let i = 0; i < catalogoNombres.length; i++) {
+        const op = document.createElement("option");
+        op.value = i;
+        op.textContent = catalogoNombres[i] + " - $" + catalogoPrecios[i].toFixed(2);
+        sel.appendChild(op);
+      }
+    }
+
+    // Agrega el producto elegido a los tres vectores
+    function agregarProducto() {
+      const indice = parseInt(document.getElementById("selProducto").value);
+      const cant = parseInt(document.getElementById("cantidad").value);
+
+      // Validación: la cantidad debe ser un entero positivo
+      if (isNaN(cant) || cant <= 0) {
+        alert("Ingrese una cantidad válida mayor a 0.");
+        return;
+      }
+
+      productos.push(catalogoNombres[indice]);
+      cantidades.push(cant);
+      precios.push(catalogoPrecios[indice]);
+      mostrarLista();
+    }
+
+    // Dibuja la lista de productos recorriendo los vectores
+    function mostrarLista() {
+      const ul = document.getElementById("lista");
+      ul.innerHTML = "";
+      for (let i = 0; i < productos.length; i++) {
+        const li = document.createElement("li");
+        li.textContent = productos[i] + " x" + cantidades[i] + " a $" + precios[i].toFixed(2);
+        ul.appendChild(li);
+      }
+    }
+
+    // Calcula subtotal, IVA, descuento y total
+    function generarFactura() {
+      if (productos.length === 0) {
+        alert("Primero agregue al menos un producto.");
+        return;
+      }
+
+      // Acumulador del subtotal: suma de cantidad x precio
+      let subtotal = 0;
+      for (let i = 0; i < productos.length; i++) {
+        subtotal += cantidades[i] * precios[i];
+      }
+
+      const iva = subtotal * 0.15;
+
+      // Condición compuesta para el descuento
+      let descuento = 0;
+      if (subtotal > 20) {
+        descuento = subtotal * 0.05;
+      } else if (subtotal > 0) {
+        descuento = 0; // compra pequeña: sin descuento
+      }
+
+      const total = subtotal + iva - descuento;
+
+      document.getElementById("resumen").textContent =
+        "Subtotal: " + subtotal.toFixed(2) + "\n" +
+        "IVA (15%): " + iva.toFixed(2) + "\n" +
+        "Descuento: " + descuento.toFixed(2) + "\n" +
+        "Total a pagar: " + total.toFixed(2);
+    }
+
+    // Vacía los vectores para iniciar otra compra
+    function reiniciar() {
+      productos = []; cantidades = []; precios = [];
+      mostrarLista();
+      document.getElementById("resumen").textContent = "Aún no hay productos.";
+    }
+
+    cargarCatalogo();
+  </script>
+</body>
+</html>
