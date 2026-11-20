@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Caso 7 - Librería Académica</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        button, input {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #mensaje {
+            background-color: #fff3cd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #factura {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Librería Académica - Facturación</h2>
+
+    <label>Producto:</label><br>
+    <input type="text" id="nombre" placeholder="Ej: Cuaderno grande"><br>
+
+    <label>Precio unitario ($):</label><br>
+    <input type="number" id="precio" step="0.01" min="0"><br>
+
+    <button onclick="agregarProducto()">Agregar producto</button>
+    <button onclick="generarFactura()">Generar factura</button>
+
+    <div id="mensaje">Registre los productos vendidos.</div>
+
+    <h3>Productos registrados</h3>
+
+    <ul id="lista"></ul>
+
+    <div id="factura"></div>
+
+    <script>
+
+        // Vectores paralelos
+        let productos = [];
+        let precios = [];
+
+        // Verificar si el producto ya existe
+        function existeProducto(nombre) {
+
+            for (let i = 0; i < productos.length; i++) {
+
+                if (productos[i].toLowerCase() === nombre.toLowerCase()) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Agregar producto
+        function agregarProducto() {
+
+            const nombre = document.getElementById("nombre").value.trim();
+
+            const textoPrecio = document.getElementById("precio").value;
+
+            const precio = Number(textoPrecio);
+
+            const msg = document.getElementById("mensaje");
+
+            // Validar nombre
+            if (nombre === "") {
+                msg.textContent = "Ingrese el nombre del producto.";
+                return;
+            }
+
+            // Validar precio
+            if (textoPrecio === "" || !Number.isFinite(precio)) {
+                msg.textContent = "Ingrese un precio válido.";
+                return;
+            }
+
+            if (precio < 0) {
+                msg.textContent = "El precio no puede ser negativo.";
+                return;
+            }
+
+            // Verificar productos duplicados
+            if (existeProducto(nombre)) {
+                msg.textContent = "Advertencia: " + nombre + " ya está registrado.";
+                return;
+            }
+
+            // Guardar producto y precio
+            productos.push(nombre);
+            precios.push(precio);
+
+            msg.textContent = "Producto agregado: " + nombre;
+
+            document.getElementById("nombre").value = "";
+            document.getElementById("precio").value = "";
+
+            mostrarLista();
+        }
+
+        // Mostrar productos registrados
+        function mostrarLista() {
+
+            const ul = document.getElementById("lista");
+
+            ul.innerHTML = "";
+
+            for (let i = 0; i < productos.length; i++) {
+
+                const li = document.createElement("li");
+
+                li.textContent = productos[i] + " - $" + precios[i].toFixed(2);
+
+                ul.appendChild(li);
+            }
+        }
+
+        // Generar factura
+        function generarFactura() {
+
+            const msg = document.getElementById("mensaje");
+
+            if (productos.length === 0) {
+                msg.textContent = "No hay productos para facturar.";
+                return;
+            }
+
+            // Calcular subtotal y producto más caro
+            let subtotal = 0;
+
+            let posMax = 0;
+
+            for (let i = 0; i < precios.length; i++) {
+
+                subtotal += precios[i];
+
+                if (precios[i] > precios[posMax]) {
+                    posMax = i;
+                }
+            }
+
+            // Calcular IVA, total y promedio
+            const iva = subtotal * 0.15;
+
+            const total = subtotal + iva;
+
+            const promedio = subtotal / productos.length;
+
+            // Mostrar factura
+            document.getElementById("factura").textContent =
+
+                "FACTURA DE VENTA\n\n" +
+
+                "Subtotal: $" + subtotal.toFixed(2) + "\n" +
+
+                "IVA (15%): $" + iva.toFixed(2) + "\n" +
+
+                "Total a pagar: $" + total.toFixed(2) + "\n" +
+
+                "Cantidad de productos: " + productos.length + "\n" +
+
+                "Producto más caro: " + productos[posMax] +
+                " ($" + precios[posMax].toFixed(2) + ")\n" +
+
+                "Promedio de precios: $" + promedio.toFixed(2);
+        }
+
+    </script>
+
+</body>
+</html>
