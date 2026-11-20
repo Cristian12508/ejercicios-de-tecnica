@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Caso 4 - Pedidos e Inventario</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        button, input {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #mensaje {
+            background-color: #fff3cd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #resumen {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Pedidos e Inventario - Restaurante</h2>
+
+    <label>Plato:</label><br>
+    <input type="text" id="plato" placeholder="Ej: Hamburguesa"><br>
+
+    <button onclick="registrarPedido()">Registrar pedido</button>
+    <button onclick="mostrarResumen()">Ver resumen</button>
+
+    <div id="mensaje">Esperando pedido...</div>
+
+    <h3>Inventario actual</h3>
+    <ul id="inventario"></ul>
+
+    <div id="resumen"></div>
+
+    <script>
+
+        // Vectores de platos y cantidades disponibles
+        let platos = ["Hamburguesa", "Ensalada", "Sopa"];
+
+        let stock = [2, 1, 0];
+
+        // Vector para guardar los pedidos aceptados
+        let pedidos = [];
+
+        // Buscar plato en el inventario
+        function buscarPlato(nombre) {
+
+            for (let i = 0; i < platos.length; i++) {
+
+                if (platos[i].toLowerCase() === nombre.toLowerCase()) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        // Registrar un pedido
+        function registrarPedido() {
+
+            const nombre = document.getElementById("plato").value.trim();
+            const msg = document.getElementById("mensaje");
+
+            if (nombre === "") {
+                msg.textContent = "Ingrese el nombre de un plato.";
+                return;
+            }
+
+            const i = buscarPlato(nombre);
+
+            if (i === -1) {
+
+                msg.textContent = "El plato " + nombre + " no existe en el menú.";
+
+            } else if (stock[i] === 0) {
+
+                msg.textContent = "Producto agotado: " + platos[i];
+
+            } else {
+
+                stock[i]--;
+
+                pedidos.push(platos[i]);
+
+                msg.textContent = "Pedido aceptado: " + platos[i];
+            }
+
+            document.getElementById("plato").value = "";
+
+            mostrarInventario();
+        }
+
+        // Mostrar inventario actual
+        function mostrarInventario() {
+
+            const ul = document.getElementById("inventario");
+
+            ul.innerHTML = "";
+
+            for (let i = 0; i < platos.length; i++) {
+
+                const li = document.createElement("li");
+
+                li.textContent = platos[i] + ": " + stock[i] + " unidades";
+
+                ul.appendChild(li);
+            }
+        }
+
+        // Mostrar resumen de pedidos
+        function mostrarResumen() {
+
+            let agotados = [];
+
+            for (let i = 0; i < stock.length; i++) {
+
+                if (stock[i] === 0) {
+                    agotados.push(platos[i]);
+                }
+            }
+
+            document.getElementById("resumen").textContent =
+
+                "Pedidos realizados: " +
+                (pedidos.length > 0 ? pedidos.join(", ") : "ninguno") +
+
+                "\nPlatos agotados: " +
+                (agotados.length > 0 ? agotados.join(", ") : "ninguno");
+        }
+
+        // Mostrar inventario al iniciar
+        mostrarInventario();
+
+    </script>
+
+</body>
+</html>
